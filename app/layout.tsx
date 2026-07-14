@@ -12,15 +12,17 @@ const SITE_URL = siteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "행운부적 · 나만의 부적 카드",
+    default: "행운부적 · 소원 골라 부적 뽑기",
     template: "%s · 행운부적",
   },
   description:
-    "이름과 생년월일, 소원을 입력하면 사주 오행을 분석해 부족한 기운을 채우는 '나만의 부적 카드'를 만들어 드려요. 오늘의 행운 한 줄도 함께. 재미·참고용 콘텐츠입니다.",
+    "소원만 고르면 귀여운 행운부적이 뿅! 시험·연애·재물·건강… 소원별 캐릭터 부적을 저장하고 친구랑 공유하는 부적 생성기. 재미·참고용 콘텐츠입니다.",
   openGraph: {
     type: "website",
     siteName: "행운부적",
-    images: ["/logo.png"],
+    title: "행운부적 · 소원 골라 부적 뽑기",
+    description: "소원만 고르면 귀여운 행운부적이 뿅! 저장하고 친구랑 공유해요.",
+    images: ["/bujeok/exam.png"],
   },
 };
 
