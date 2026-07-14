@@ -79,14 +79,14 @@ npm run cf:deploy       # = opennextjs-cloudflare deploy
 ```
 
 - `wrangler.jsonc` 에 커스텀 도메인 `bujeok.fineboll.com` 라우트가 지정돼 있어요.
-- **⚠️ saju-core 의존 주의**: 이 앱은 `file:../saju-core` 로 공용 패키지를 참조해요.
-  로컬에서 `cf:deploy` 하면 형제 폴더가 있어 정상 빌드되지만, **git 연동
-  Cloudflare Workers Builds(CI)** 로 넘어가려면 bujeok 저장소 단독에 saju-core 가
-  없어 빌드가 실패해요. CI 자동배포를 켜기 전에 다음 중 하나를 정해야 해요:
-  1. saju-core 를 npm(또는 GitHub Packages)에 배포하고 버전 의존으로 전환
-  2. 모노레포(pnpm/npm workspaces)로 두 패키지를 한 저장소에 통합
-  3. git subtree/submodule 로 saju-core 를 bujeok 저장소에 포함
-  당분간은 **로컬 `cf:deploy`** 로 배포하면 돼요.
+- **saju-core 의존**: 공용 패키지를 git-URL 의존(`github:hdyeon67/saju-core`)으로
+  참조해요. `npm install` 이 GitHub 에서 직접 받아오므로 sibling 폴더 없이도
+  **CI(Cloudflare Workers Builds)에서 그대로 빌드**돼요. saju-core 저장소는 공개라
+  별도 토큰이 필요 없어요.
+  - saju-core 를 수정할 땐 `saju-core` 저장소에 push 한 뒤, bujeok 에서
+    `npm update saju-core` 로 갱신하세요(로컬 sibling 자동 반영은 안 됨).
+  - 특정 버전에 고정하려면 커밋 SHA 나 태그를 붙이세요:
+    `github:hdyeon67/saju-core#<sha>`.
 
 ## 기능 플래그 (env 로 해금)
 

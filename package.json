@@ -17,7 +17,7 @@
     "next": "^15.5.20",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "saju-core": "file:../saju-core"
+    "saju-core": "github:hdyeon67/saju-core"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.20.1",
