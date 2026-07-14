@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-/** 전 앱 공통 이벤트 이름 (스펙 §2) */
+/** 전 앱 공통 이벤트 이름 (스펙 §2 + 생성기 피벗 이벤트) */
 export type AnalyticsEvent =
   | "landing_view"
   | "input_submit"
@@ -23,7 +23,12 @@ export type AnalyticsEvent =
   | "cta_friend_click"
   | "cross_banner_click"
   | "daily_fortune_view"
-  | "premium_lock_click";
+  | "premium_lock_click"
+  // 생성기 피벗
+  | "bujeok_generate"
+  | "style_toggle"
+  | "today_bujeok_view"
+  | "collection_view";
 
 /** 이벤트 전송 (키 없으면 no-op). PII 금지 — 호출부에서 비식별 속성만 전달할 것 */
 export function track(event: AnalyticsEvent, props: Record<string, unknown> = {}): void {

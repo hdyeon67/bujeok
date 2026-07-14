@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import { Footer } from "@/components/footer";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { AdRails } from "@/components/AdRails";
 import { siteUrl } from "@/lib/config/site";
 import { ADS_ENABLED, ADSENSE_CLIENT } from "@/lib/config/flags";
 
@@ -37,11 +38,12 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Noto+Serif+KR:wght@500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap"
         />
       </head>
-      <body className="min-h-screen bg-hanji text-meok antialiased">
+      <body className="min-h-screen bg-cream text-ink antialiased">
         <AnalyticsProvider />
+        <AdRails />{/* PC 좌·우 세로 레일 (xl+, 단위ID 있을 때) */}
         {ADS_ENABLED && (
           <Script
             id="adsbygoogle-init"

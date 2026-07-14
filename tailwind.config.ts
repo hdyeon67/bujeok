@@ -1,8 +1,7 @@
 import type { Config } from "tailwindcss";
 
-// 행운부적 디자인 토큰: "전통 부적 × 모던 카드".
-// 한지 텍스처 배경 + 전통 주사(朱砂) 레드 포인트. 오행 5색은 카드 렌더 시
-// lib/bujeok-engine 의 오행 메타(색)에서 직접 가져온다(Phase 2~3).
+// 행운부적 디자인 토큰 — 밝고 귀여운 캐릭터 굿즈 톤(최고심/earpearp 결).
+// 크림 배경 + 잉크(검정 외곽) + 밝은 포인트. 카테고리 색은 lib/config/theme.ts.
 const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
@@ -12,24 +11,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // 한지 배경 계열
-        hanji: {
-          DEFAULT: "#f5efe1",
-          soft: "#ece3cf",
-          deep: "#ddd0b3",
+        cream: {
+          DEFAULT: "#fff6e9",
+          soft: "#fdeccf",
+          deep: "#f6dcae",
         },
-        // 먹색 텍스트 계열
-        meok: {
-          DEFAULT: "#26221c",
-          soft: "#4a443a",
-          faint: "#7c7462",
+        ink: {
+          DEFAULT: "#2b2724",
+          soft: "#5a534c",
+          faint: "#8a8178",
         },
-        // 주사(朱砂) 레드 포인트
-        jusa: {
-          DEFAULT: "#c8352b",
-          deep: "#9e241d",
+        brand: {
+          DEFAULT: "#ff5b3a",
+          deep: "#e8431f",
         },
-        // shadcn 계열 토큰 (EDEN 표준 푸터 등이 사용)
+        // shadcn 계열 토큰
         border: "hsl(var(--border))",
         foreground: "hsl(var(--foreground))",
         "muted-foreground": "hsl(var(--muted-foreground))",
@@ -37,8 +33,12 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Pretendard", "ui-sans-serif", "system-ui", "sans-serif"],
-        // 부적 인장·기원문용 붓글씨 계열 (Phase 3에서 웹폰트 연결)
-        brush: ["'Nanum Brush Script'", "'Noto Serif KR'", "ui-serif", "serif"],
+        // 손글씨 귀여운 제목용 (Gaegu)
+        cute: ["Gaegu", "'Nanum Brush Script'", "Pretendard", "cursive"],
+      },
+      boxShadow: {
+        pop: "5px 5px 0 0 rgba(43,39,36,0.14)",
+        popsm: "3px 3px 0 0 rgba(43,39,36,0.14)",
       },
     },
   },

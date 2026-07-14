@@ -21,7 +21,7 @@ export function SeasonCountdown({ className = "" }: { className?: string }) {
 
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full border border-jusa/30 bg-jusa/10 px-4 py-1.5 text-sm font-semibold text-jusa ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border-[2.5px] border-ink bg-brand px-4 py-1.5 text-sm font-extrabold text-white shadow-popsm ${className}`}
     >
       <span aria-hidden>🔥</span>
       <span>

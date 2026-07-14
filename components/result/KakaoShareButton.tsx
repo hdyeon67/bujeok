@@ -84,7 +84,7 @@ export function KakaoShareButton({
       type="button"
       onClick={share}
       disabled={!ready}
-      className="w-full rounded-xl bg-[#FEE500] py-3.5 text-base font-semibold text-[#3c1e1e] transition active:scale-[0.99] disabled:opacity-50"
+      className="w-full rounded-2xl border-[2.5px] border-ink bg-[#FEE500] py-3.5 text-base font-extrabold text-[#3c1e1e] shadow-popsm transition hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
     >
       💬 카카오톡 공유
     </button>

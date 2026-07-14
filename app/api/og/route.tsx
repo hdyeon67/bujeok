@@ -1,17 +1,13 @@
 import { ImageResponse } from "next/og";
-import { decodePayload } from "@/lib/share";
-import { buildBujeok, getCategory, ohaengMeta } from "@/lib/bujeok-engine";
+import { isCategoryId } from "@/lib/bujeok-engine";
+import { getEntry } from "@/lib/bujeok/catalog";
+import { categoryTheme } from "@/lib/config/theme";
 
 export const runtime = "nodejs";
 
-// 링크 프리뷰용 OG 이미지(1200×630). 한자 인장은 satori 폰트 이슈가 있어
-// 이모지 + 한글 라벨로 브랜드 카드를 구성한다(실제 부적 카드의 한자 버전은
-// 페이지 내 SVG·PNG 저장에서 제공). Pretendard 를 fetch 해 satori 에 넘긴다.
-
+// 링크 프리뷰 OG(1200×630). 부적 소원 문구 + 이모지 + 카테고리 색. Pretendard fetch.
 const FONT_BOLD =
   "https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/public/static/Pretendard-Bold.otf";
-const FONT_REG =
-  "https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/public/static/Pretendard-Regular.otf";
 
 async function font(url: string): Promise<ArrayBuffer | null> {
   try {
@@ -22,46 +18,17 @@ async function font(url: string): Promise<ArrayBuffer | null> {
   }
 }
 
-const HANJI = "#f5efe1";
-const MEOK = "#26221c";
-const JUSA = "#c8352b";
-
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const payload = decodePayload(searchParams.get("d"));
-  const [bold, reg] = await Promise.all([font(FONT_BOLD), font(FONT_REG)]);
-  const fonts = [
-    ...(bold ? [{ name: "Pretendard", data: bold, weight: 700 as const, style: "normal" as const }] : []),
-    ...(reg ? [{ name: "Pretendard", data: reg, weight: 400 as const, style: "normal" as const }] : []),
-  ];
-  const fontOpt = fonts.length ? fonts : undefined;
+  const c = searchParams.get("c");
+  const bold = await font(FONT_BOLD);
+  const fonts = bold
+    ? [{ name: "Pretendard", data: bold, weight: 700 as const, style: "normal" as const }]
+    : undefined;
 
-  if (!payload) {
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: HANJI,
-            color: JUSA,
-            fontSize: 84,
-            fontWeight: 700,
-          }}
-        >
-          🧧 행운부적
-        </div>
-      ),
-      { width: 1200, height: 630, fonts: fontOpt },
-    );
-  }
-
-  const result = buildBujeok({ name: payload.n, birth: payload.b, category: payload.c });
-  const cat = getCategory(payload.c);
-  const meta = ohaengMeta(result.complement.element);
+  const valid = c && isCategoryId(c);
+  const e = valid ? getEntry(c) : null;
+  const bg = valid ? categoryTheme(c).bg : "#fff6e9";
 
   return new ImageResponse(
     (
@@ -70,63 +37,25 @@ export async function GET(req: Request) {
           width: "100%",
           height: "100%",
           display: "flex",
-          background: `linear-gradient(135deg, ${HANJI} 55%, ${meta.hex}33 100%)`,
-          fontFamily: "Pretendard",
-          color: MEOK,
-          padding: 72,
+          flexDirection: "column",
           alignItems: "center",
-          gap: 56,
+          justifyContent: "center",
+          background: bg,
+          fontFamily: "Pretendard",
+          color: "#2b2724",
+          padding: 60,
+          textAlign: "center",
         }}
       >
-        {/* 인장 메달 */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 300,
-            height: 380,
-            borderRadius: 28,
-            background: JUSA,
-            color: HANJI,
-            boxShadow: "0 20px 50px -20px rgba(200,53,43,0.6)",
-          }}
-        >
-          <div style={{ display: "flex", fontSize: 130 }}>{cat.emoji}</div>
-          <div style={{ display: "flex", fontSize: 52, fontWeight: 700, marginTop: 10 }}>
-            {cat.label}
-          </div>
+        <div style={{ display: "flex", fontSize: 120 }}>{e ? e.emoji : "🧧"}</div>
+        <div style={{ display: "flex", fontSize: 88, fontWeight: 700, marginTop: 12 }}>
+          {e ? e.phrase : "행운부적"}
         </div>
-
-        {/* 텍스트 */}
-        <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-          <div style={{ display: "flex", fontSize: 40, color: "#7c7462" }}>
-            {payload.n}님의 부적
-          </div>
-          <div style={{ display: "flex", fontSize: 78, fontWeight: 700, marginTop: 8 }}>
-            나만의 {cat.label} 부적
-          </div>
-          <div style={{ display: "flex", marginTop: 34 }}>
-            <div
-              style={{
-                display: "flex",
-                fontSize: 34,
-                color: "#fff",
-                background: meta.hex,
-                borderRadius: 16,
-                padding: "8px 22px",
-              }}
-            >
-              보완 {result.complement.element} 기운을 채운 부적
-            </div>
-          </div>
-          <div style={{ display: "flex", fontSize: 30, marginTop: 44, color: "#a89a7a", letterSpacing: 4 }}>
-            행운부적 · bujeok.fineboll.com
-          </div>
+        <div style={{ display: "flex", fontSize: 34, marginTop: 30, color: "#5a534c" }}>
+          🐯 행운부적 · 소원 골라 부적 뽑기
         </div>
       </div>
     ),
-    { width: 1200, height: 630, fonts: fontOpt },
+    { width: 1200, height: 630, fonts },
   );
 }

@@ -11,7 +11,7 @@ export function PremiumLock() {
     return (
       <button
         type="button"
-        className="w-full rounded-xl border border-jusa bg-jusa/10 py-3.5 text-base font-semibold text-jusa"
+        className="w-full rounded-xl border border-brand bg-brand/10 py-3.5 text-base font-semibold text-brand"
       >
         ✨ 고해상도·인쇄용 프리미엄 부적 받기
       </button>
@@ -21,15 +21,15 @@ export function PremiumLock() {
     <button
       type="button"
       onClick={() => track("premium_lock_click")}
-      className="w-full rounded-xl border border-dashed border-hanji-deep bg-hanji-soft/40 px-4 py-3.5 text-center"
+      className="w-full rounded-xl border border-dashed border-cream-deep bg-cream-soft/40 px-4 py-3.5 text-center"
     >
-      <span className="block text-sm font-semibold text-meok-soft">
+      <span className="block text-sm font-semibold text-ink-soft">
         ✨ 고해상도·인쇄용 프리미엄 부적{" "}
-        <span className="ml-1 rounded-full bg-meok/10 px-2 py-0.5 text-xs">
+        <span className="ml-1 rounded-full bg-ink/10 px-2 py-0.5 text-xs">
           오픈 준비 중
         </span>
       </span>
-      <span className="mt-1 block text-xs text-meok-faint">
+      <span className="mt-1 block text-xs text-ink-faint">
         준비되면 가장 먼저 알려드릴게요. (탭해서 관심 표시)
       </span>
     </button>

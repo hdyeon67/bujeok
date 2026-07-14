@@ -13,13 +13,13 @@ export default function GuideIndex() {
   return (
     <main className="mx-auto w-full max-w-md px-5 py-8">
       <header className="mb-6">
-        <Link href="/" className="text-sm text-meok-faint">
+        <Link href="/" className="text-sm text-ink-faint">
           ← 홈으로
         </Link>
-        <h1 className="mt-3 font-brush text-3xl font-extrabold text-meok">
+        <h1 className="mt-3 font-cute text-3xl font-extrabold text-ink">
           부적 가이드
         </h1>
-        <p className="mt-2 text-[15px] leading-relaxed text-meok-soft">
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
           소원별 부적 이야기를 읽고, 나에게 맞는 부적을 만들어 보세요.
         </p>
       </header>
@@ -31,18 +31,18 @@ export default function GuideIndex() {
             <Link
               key={g.slug}
               href={`/guide/${g.slug}`}
-              className="flex items-center gap-3 rounded-xl border border-hanji-deep/60 bg-white/50 px-4 py-4 transition hover:border-jusa/40"
+              className="flex items-center gap-3 rounded-xl border border-cream-deep/60 bg-white/50 px-4 py-4 transition hover:border-brand/40"
             >
-              <span className="flex size-10 items-center justify-center rounded-lg bg-jusa/10 text-xl">
+              <span className="flex size-10 items-center justify-center rounded-lg bg-brand/10 text-xl">
                 {cat.emoji}
               </span>
               <span className="flex-1">
-                <span className="block text-[15px] font-semibold text-meok">
+                <span className="block text-[15px] font-semibold text-ink">
                   {g.keyword}
                 </span>
-                <span className="block text-xs text-meok-faint">{g.metaTitle}</span>
+                <span className="block text-xs text-ink-faint">{g.metaTitle}</span>
               </span>
-              <span className="text-meok-faint" aria-hidden>
+              <span className="text-ink-faint" aria-hidden>
                 ›
               </span>
             </Link>

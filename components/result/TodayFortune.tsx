@@ -30,11 +30,11 @@ export function TodayFortune({ name, birth }: { name: string; birth: string }) {
   }, [name, birth]);
 
   return (
-    <div className="rounded-2xl border border-hanji-deep/60 bg-white/50 p-5">
-      <p className="mb-2 text-sm font-semibold text-jusa">오늘의 행운 한 줄</p>
+    <div className="sticker p-5">
+      <p className="mb-2 text-sm font-extrabold text-brand">🍀 오늘의 행운 한 줄</p>
       {f ? (
         <>
-          <p className="text-[15px] font-medium leading-relaxed text-meok">{line}</p>
+          <p className="text-[15px] font-bold leading-relaxed text-ink">{line}</p>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <Attr label="행운 색" value={f.luckyColorName} swatch={f.luckyColorHex} />
             <Attr label="행운 숫자" value={String(f.luckyNumber)} />
@@ -42,7 +42,7 @@ export function TodayFortune({ name, birth }: { name: string; birth: string }) {
           </div>
         </>
       ) : (
-        <div className="h-5 w-3/4 animate-pulse rounded bg-hanji-deep/50" />
+        <div className="h-5 w-3/4 animate-pulse rounded bg-cream-deep" />
       )}
     </div>
   );
@@ -58,9 +58,9 @@ function Attr({
   swatch?: string;
 }) {
   return (
-    <div className="rounded-xl bg-hanji-soft/70 py-2.5">
-      <p className="text-xs text-meok-faint">{label}</p>
-      <p className="mt-0.5 flex items-center justify-center gap-1.5 text-sm font-semibold text-meok">
+    <div className="rounded-xl bg-cream-soft/70 py-2.5">
+      <p className="text-xs text-ink-faint">{label}</p>
+      <p className="mt-0.5 flex items-center justify-center gap-1.5 text-sm font-semibold text-ink">
         {swatch && (
           <span
             className="inline-block size-3 rounded-full ring-1 ring-black/10"

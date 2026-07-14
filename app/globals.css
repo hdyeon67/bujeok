@@ -3,20 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --hanji: #f5efe1;
-  --meok: #26221c;
+  --cream: #fff6e9;
+  --ink: #2b2724;
+  --brand: #ff5b3a; /* 밝은 토마토 포인트 */
 
-  /* shadcn 계열 토큰 (HSL 삼중값) — 한지/먹/주사 팔레트 매핑 */
-  --foreground: 33 15% 13%; /* 먹색 */
-  --muted-foreground: 33 12% 42%; /* 흐린 먹 */
-  --border: 40 33% 78%; /* 한지 deep */
-  --primary: 4 64% 48%; /* 주사(朱砂) 레드 포인트 */
+  /* shadcn 계열 토큰 (HSL) — 밝은 크림/먹 팔레트 */
+  --foreground: 24 14% 15%; /* 잉크 */
+  --muted-foreground: 24 8% 45%;
+  --border: 36 60% 82%; /* 크림 딥 */
+  --primary: 12 100% 61%; /* 브랜드 */
 }
 
 html,
 body {
-  background-color: var(--hanji);
-  color: var(--meok);
+  background-color: var(--cream);
+  color: var(--ink);
 }
 
 body {
@@ -28,27 +29,16 @@ body {
 @keyframes bujeok-rise {
   0% {
     opacity: 0;
-    transform: translateY(22px) scale(0.94);
+    transform: translateY(22px) scale(0.94) rotate(-2deg);
   }
   60% {
     opacity: 1;
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(1) rotate(0);
   }
 }
-
-@keyframes bujeok-glow {
-  0%,
-  100% {
-    box-shadow: 0 10px 30px -12px rgba(200, 53, 43, 0.35);
-  }
-  50% {
-    box-shadow: 0 14px 40px -10px rgba(200, 53, 43, 0.55);
-  }
-}
-
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -59,21 +49,33 @@ body {
     transform: translateY(0);
   }
 }
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
 
 .animate-bujeok-rise {
-  animation: bujeok-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.animate-bujeok-glow {
-  animation: bujeok-glow 3.2s ease-in-out infinite;
+  animation: bujeok-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .animate-fade-up {
   animation: fade-up 0.6s ease-out both;
 }
+.animate-wiggle {
+  animation: wiggle 2.4s ease-in-out infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .animate-bujeok-rise,
-  .animate-bujeok-glow,
-  .animate-fade-up {
+  .animate-fade-up,
+  .animate-wiggle {
     animation: none;
   }
+}
+
+/* 통통 라운드 스티커 카드 공통 */
+.sticker {
+  border: 3px solid var(--ink);
+  border-radius: 24px;
+  box-shadow: 5px 5px 0 0 rgba(43, 39, 36, 0.14);
+  background: #fff;
 }

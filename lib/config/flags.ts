@@ -11,6 +11,12 @@ export const ADS_ENABLED =
 /** 애드센스 퍼블리셔 client id (ca-pub-...) */
 export const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "";
 
+// 카카오 애드핏 광고단위 ID (DAN-...). 없으면 해당 슬롯 미노출.
+//   PC = 좌·우 세로 사이드(160×600), 모바일 = 하단 가로 배너(320×100)
+export const ADFIT_UNIT_PC_LEFT = process.env.NEXT_PUBLIC_ADFIT_UNIT_PC_LEFT ?? "";
+export const ADFIT_UNIT_PC_RIGHT = process.env.NEXT_PUBLIC_ADFIT_UNIT_PC_RIGHT ?? "";
+export const ADFIT_UNIT_MOBILE = process.env.NEXT_PUBLIC_ADFIT_UNIT_MOBILE ?? "";
+
 /** 카카오 공유 활성 여부. JS 키가 있어야 카카오톡 공유 버튼 노출 */
 export const KAKAO_ENABLED = !!process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
 
