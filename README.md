@@ -74,9 +74,13 @@ sibling 앱과 동일한 스택. 상세 레시피는 `goodday/docs/cloudflare-mi
 ```bash
 # 1) 프로덕션 공개 env 설정 (.env.local 또는 .env.production)
 #    NEXT_PUBLIC_SITE_URL=https://bujeok.fineboll.com
-# 2) OpenNext 빌드 + 배포 (populate-cache 포함)
-npm run cf:deploy       # = opennextjs-cloudflare deploy
+# 2) 반드시 빌드 후 배포 — cf:deploy 는 재빌드하지 않고 마지막 .open-next 를 올린다!
+npm run cf:build        # OpenNext 번들 재생성 (.open-next/worker.js)
+npm run cf:deploy       # 그 번들을 Cloudflare 에 배포
 ```
+
+> ⚠️ 코드 수정 후 `cf:deploy` 만 실행하면 **옛 번들이 올라간다.** 항상
+> `cf:build → cf:deploy` 순서로. (한 줄로: `npm run cf:build && npm run cf:deploy`)
 
 - `wrangler.jsonc` 에 커스텀 도메인 `bujeok.fineboll.com` 라우트가 지정돼 있어요.
 - **saju-core 의존**: 공용 패키지를 git-URL 의존(`github:hdyeon67/saju-core`)으로
