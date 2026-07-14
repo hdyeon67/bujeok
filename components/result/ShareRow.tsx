@@ -11,10 +11,14 @@ import { KakaoShareButton } from "./KakaoShareButton";
 // 친구 CTA. PNG 저장은 페이지의 실제 부적 SVG 를 그대로 래스터화한다.
 export function ShareRow({
   card,
+  wish,
+  emoji,
   title,
   description,
 }: {
   card: BujeokCard;
+  wish?: string;
+  emoji?: string;
   title: string;
   description: string;
 }) {
@@ -34,7 +38,7 @@ export function ShareRow({
 
   return (
     <div className="space-y-2.5">
-      <SaveButtons card={card} />
+      <SaveButtons card={card} wish={wish} emoji={emoji} />
 
       <button
         type="button"

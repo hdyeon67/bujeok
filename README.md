@@ -116,7 +116,7 @@ const result = buildBujeok({ name: "홍길동", birth: "1998-03-21", category: "
 // result.luck                → 행운 지수 30~95
 
 const copy = selectBujeokCopy(result);   // { fact, reason, tip, paragraph }
-const svg = renderBujeokSvg(result.card, { ratio: "9:16", wish: "시험 합격" });
+const svg = renderBujeokSvg(result.card, { wish: "시험 합격", emoji: "📚" }); // 세로 3:4
 
 const today = dailyFortune("홍길동", "1998-03-21", "2026-07-14");
 const line = selectDailyLine(today);     // "오늘의 행운 한 줄"

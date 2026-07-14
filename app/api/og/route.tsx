@@ -107,7 +107,7 @@ export async function GET(req: Request) {
           <div style={{ display: "flex", fontSize: 78, fontWeight: 700, marginTop: 8 }}>
             나만의 {cat.label} 부적
           </div>
-          <div style={{ display: "flex", marginTop: 34, gap: 16 }}>
+          <div style={{ display: "flex", marginTop: 34 }}>
             <div
               style={{
                 display: "flex",
@@ -118,21 +118,7 @@ export async function GET(req: Request) {
                 padding: "8px 22px",
               }}
             >
-              보완 {result.complement.element} 기운
-            </div>
-            <div
-              style={{
-                display: "flex",
-                fontSize: 34,
-                fontWeight: 700,
-                color: JUSA,
-                background: "#fff",
-                border: `2px solid ${JUSA}`,
-                borderRadius: 16,
-                padding: "8px 22px",
-              }}
-            >
-              행운 {result.luck}
+              보완 {result.complement.element} 기운을 채운 부적
             </div>
           </div>
           <div style={{ display: "flex", fontSize: 30, marginTop: 44, color: "#a89a7a", letterSpacing: 4 }}>

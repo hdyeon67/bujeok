@@ -6,7 +6,6 @@ import { buildBujeok, getCategory } from "@/lib/bujeok-engine";
 import { selectBujeokCopy } from "@/lib/copy";
 import { renderBujeokSvg } from "@/lib/bujeok-svg";
 import { BujeokCardView } from "@/components/result/BujeokCardView";
-import { LuckGauge } from "@/components/result/LuckGauge";
 import { TodayFortune } from "@/components/result/TodayFortune";
 import { ShareRow } from "@/components/result/ShareRow";
 import { CrossPromo } from "@/components/CrossPromo";
@@ -29,7 +28,7 @@ export async function generateMetadata({
   const cat = getCategory(payload.c);
   const title = `${payload.n}님의 ${cat.label} 부적`;
   const result = buildBujeok({ name: payload.n, birth: payload.b, category: payload.c });
-  const description = `사주에 부족한 ${result.complement.element} 기운을 채우는 나만의 부적. 행운 지수 ${result.luck}.`;
+  const description = `사주에 부족한 ${result.complement.element} 기운을 채우는 나만의 부적 카드.`;
   const og = `/api/og?d=${encodeURIComponent(d ?? "")}`;
   return {
     title,
@@ -56,7 +55,7 @@ export default async function ResultPage({
   const result = buildBujeok(input);
   const copy = selectBujeokCopy(result);
   const cat = getCategory(payload.c);
-  const svg = renderBujeokSvg(result.card, { ratio: "1:1", wish: cat.label });
+  const svg = renderBujeokSvg(result.card, { wish: cat.label, emoji: cat.emoji });
 
   return (
     <main className="mx-auto w-full max-w-md px-5 py-6">
@@ -76,11 +75,6 @@ export default async function ResultPage({
 
       {/* 부적 카드 (등장 애니메이션) */}
       <BujeokCardView svg={svg} className="mb-5" />
-
-      {/* 행운 지수 */}
-      <div className="mb-5 rounded-2xl border border-hanji-deep/60 bg-white/50 p-5">
-        <LuckGauge luck={result.luck} />
-      </div>
 
       {/* 해설 */}
       <div className="mb-5 rounded-2xl border border-hanji-deep/60 bg-hanji-soft/50 p-5">
@@ -105,8 +99,10 @@ export default async function ResultPage({
       <div className="mb-7">
         <ShareRow
           card={result.card}
+          wish={cat.label}
+          emoji={cat.emoji}
           title={`${payload.n}님의 ${cat.label} 부적`}
-          description={`사주에 부족한 ${result.complement.element} 기운을 채우는 나만의 부적 · 행운 ${result.luck}`}
+          description={`사주에 부족한 ${result.complement.element} 기운을 채우는 나만의 부적`}
         />
       </div>
 

@@ -1,39 +1,36 @@
-// 부적 카드 SVG 조합 렌더 — card 인덱스 → 완성 SVG 문자열.
+// 부적 카드 SVG 조합 렌더 — 세로형(3:4) 귀여운 부적. URL·링크 없음.
 //
-// 레이어 순서: 배경(오행색) → 장식 테두리 → 문양 → 상단 타이틀 → 중앙 인장 →
-//   기원문 → 워터마크(로고+URL). 순수 문자열이라 서버·클라이언트 동일 동작.
+// 레이어: 배경(오행 파스텔) → 프레임 → 반짝이 문양 → 브랜드 → 카테고리 라벨 →
+//   인장(+이모지 배지) → 보완 오행 pill → 하단 한 줄. 순수 문자열이라 서버·클라 동일.
 
 import type { BujeokCard } from "@/lib/bujeok-engine";
 import {
   backgroundLayer,
   sealLayer,
+  emojiBadge,
   PATTERNS,
   DECORATIONS,
   rgba,
   JUSA,
+  CREAM,
   MEOK,
-  HANJI,
 } from "./layers";
 
-export type CardRatio = "1:1" | "9:16";
+/** 세로 3:4 */
+export const CARD_W = 480;
+export const CARD_H = 640;
 
 export interface RenderOptions {
-  /** 종횡비 — 1:1 피드용, 9:16 스토리용 (기본 1:1) */
-  ratio?: CardRatio;
-  /** 하단 워터마크 URL (기본 bujeok.fineboll.com) */
-  watermark?: string;
-  /** 상단 타이틀 (기본 "행운부적") */
-  title?: string;
-  /** 인장 아래 기원문 (예: 카테고리 라벨). 없으면 생략 */
+  /** 카테고리 라벨 (예: "시험 합격"). 없으면 생략 */
   wish?: string;
-  /** defs id 충돌 방지용 접두어 (한 페이지에 여러 카드 렌더 시 지정) */
+  /** 카테고리 이모지 배지 */
+  emoji?: string;
+  /** defs id 충돌 방지 접두어 (한 페이지 여러 카드 시 지정) */
   idPrefix?: string;
 }
 
-const DIMS: Record<CardRatio, { w: number; h: number }> = {
-  "1:1": { w: 480, h: 480 },
-  "9:16": { w: 480, h: 853 },
-};
+// 오행 → 한자 심볼
+const OHAENG_SYMBOL: Record<string, string> = { 목: "木", 화: "火", 토: "土", 금: "金", 수: "水" };
 
 function esc(s: string): string {
   return s.replace(/[&<>"']/g, (c) =>
@@ -41,56 +38,61 @@ function esc(s: string): string {
   );
 }
 
-/** 카드 조합 → 완성 SVG 문자열 */
-export function renderBujeokSvg(card: BujeokCard, opts: RenderOptions = {}): string {
-  const ratio = opts.ratio ?? "1:1";
-  const { w, h } = DIMS[ratio];
-  const title = opts.title ?? "행운부적";
-  const watermark = opts.watermark ?? "bujeok.fineboll.com";
-  const idPrefix =
-    opts.idPrefix ?? `bj-${card.background}-${card.pattern}-${card.decoration}-${ratio.replace(":", "x")}`;
+/** 가운데 정렬 pill (라운드 배경 + 텍스트) */
+function pill(cx: number, y: number, text: string, opts: { fs: number; fg: string; bg: string; bold?: boolean }): string {
+  const w = Math.round(text.length * opts.fs * 0.92 + 34);
+  const h = Math.round(opts.fs * 1.9);
+  return `
+  <g>
+    <rect x="${cx - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="${h / 2}" fill="${opts.bg}"/>
+    <text x="${cx}" y="${y + 1}" text-anchor="middle" dominant-baseline="central"
+      font-family="'Pretendard',system-ui,sans-serif" font-size="${opts.fs}" font-weight="${opts.bold ? 700 : 500}"
+      fill="${opts.fg}">${esc(text)}</text>
+  </g>`;
+}
 
+/** 카드 조합 → 완성 SVG 문자열 (세로 3:4) */
+export function renderBujeokSvg(card: BujeokCard, opts: RenderOptions = {}): string {
+  const w = CARD_W;
+  const h = CARD_H;
+  const idPrefix = opts.idPrefix ?? `bj-${card.background}-${card.pattern}-${card.decoration}`;
   const cx = w / 2;
-  const cy = Math.round(h * 0.46);
+  const cy = 300;
 
   const bg = backgroundLayer(idPrefix, card.colorHex, w, h);
-  const deco = DECORATIONS[((card.decoration % DECORATIONS.length) + DECORATIONS.length) % DECORATIONS.length](
-    card.colorHex,
-    w,
-    h,
-  );
-  const motif = PATTERNS[((card.pattern % PATTERNS.length) + PATTERNS.length) % PATTERNS.length](
-    card.colorHex,
-    w,
-    h,
-  );
+  const deco = DECORATIONS[((card.decoration % DECORATIONS.length) + DECORATIONS.length) % DECORATIONS.length](card.colorHex, w, h);
+  const motif = PATTERNS[((card.pattern % PATTERNS.length) + PATTERNS.length) % PATTERNS.length](card.colorHex, w, h);
   const seal = sealLayer(card.seal, cx, cy);
+  const badge = opts.emoji ? emojiBadge(opts.emoji, cx + 74, cy - 74, 34) : "";
 
-  const titleEl = `<text x="${cx}" y="${Math.round(h * 0.12)}" text-anchor="middle"
-      font-family="'Nanum Myeongjo','Noto Serif KR',serif" font-size="26" font-weight="700"
-      letter-spacing="6" fill="${MEOK}">${esc(title)}</text>`;
+  const brand = `<text x="${cx}" y="66" text-anchor="middle"
+      font-family="'Pretendard',system-ui,sans-serif" font-size="16" font-weight="700"
+      letter-spacing="7" fill="${rgba(MEOK, 0.6)}">행운부적</text>`;
 
   const wishEl = opts.wish
-    ? `<text x="${cx}" y="${cy + 108}" text-anchor="middle"
-        font-family="'Noto Serif KR',serif" font-size="19" fill="${rgba(MEOK, 0.85)}">${esc(opts.wish)}</text>`
+    ? pill(cx, 108, opts.wish, { fs: 22, fg: CREAM, bg: JUSA, bold: true })
     : "";
 
-  // 워터마크: 작은 주사색 점 로고 + URL
-  const wmY = h - 26;
-  const watermarkEl = `
-  <g opacity="0.9">
-    <circle cx="${cx - 78}" cy="${wmY - 5}" r="5" fill="${JUSA}"/>
-    <text x="${cx - 66}" y="${wmY}" text-anchor="start"
-      font-family="'Pretendard',system-ui,sans-serif" font-size="14" fill="${rgba(MEOK, 0.7)}">${esc(watermark)}</text>
-  </g>`;
+  const sym = OHAENG_SYMBOL[card.background] ?? "";
+  const elPill = pill(cx, 452, `${card.background}${sym ? `(${sym})` : ""} 기운을 채웠어요`, {
+    fs: 17,
+    fg: MEOK,
+    bg: rgba(CREAM, 0.9),
+  });
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(title)} 부적 카드">
+  const bottom = `<text x="${cx}" y="578" text-anchor="middle"
+      font-family="'Pretendard',system-ui,sans-serif" font-size="17" font-weight="600"
+      fill="${rgba(MEOK, 0.7)}">행운을 담았어요 ✨</text>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(opts.wish ?? "행운")} 부적 카드">
 ${bg}
   <g>${deco}</g>
   <g>${motif}</g>
-  ${titleEl}
-  ${seal}
+  ${brand}
   ${wishEl}
-  ${watermarkEl}
+  ${seal}
+  ${badge}
+  ${elPill}
+  ${bottom}
 </svg>`;
 }

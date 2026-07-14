@@ -1,18 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { renderBujeokSvg, type CardRatio } from "@/lib/bujeok-svg";
+import { renderBujeokSvg, CARD_W, CARD_H } from "@/lib/bujeok-svg";
 import type { BujeokCard } from "@/lib/bujeok-engine";
 import { track } from "@/lib/analytics";
 
-// 부적 카드 PNG 저장 — 페이지의 실제 SVG(한자 인장 포함)를 클라이언트에서
-// 캔버스로 래스터화해 다운로드한다. 스토리 9:16 / 피드 1:1 두 레이아웃 제공.
-// SVG 는 외부 리소스가 없어 캔버스가 오염되지 않으므로 toBlob 가능.
+// 부적 카드 PNG 저장 — 페이지의 실제 세로형 SVG(한자 인장 포함)를 클라이언트에서
+// 캔버스로 래스터화해 다운로드. SVG 는 외부 리소스가 없어 캔버스가 오염되지 않음.
 
-const SCALE = 2; // 선명하게 2배 렌더
+const SCALE = 2.5; // 선명하게
 
 async function svgToPng(svg: string, w: number, h: number): Promise<Blob> {
-  // 웹폰트(인장 서체)가 로드된 뒤 그린다
   if (typeof document !== "undefined" && document.fonts?.ready) {
     try {
       await document.fonts.ready;
@@ -54,43 +52,40 @@ function download(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const DIMS: Record<CardRatio, { w: number; h: number; label: string }> = {
-  "9:16": { w: 480, h: 853, label: "스토리 저장" },
-  "1:1": { w: 480, h: 480, label: "피드 저장" },
-};
+export function SaveButtons({
+  card,
+  wish,
+  emoji,
+}: {
+  card: BujeokCard;
+  wish?: string;
+  emoji?: string;
+}) {
+  const [busy, setBusy] = useState(false);
 
-export function SaveButtons({ card }: { card: BujeokCard }) {
-  const [busy, setBusy] = useState<CardRatio | null>(null);
-
-  async function save(ratio: CardRatio) {
+  async function save() {
     if (busy) return;
-    setBusy(ratio);
+    setBusy(true);
     try {
-      const { w, h } = DIMS[ratio];
-      const svg = renderBujeokSvg(card, { ratio, wish: undefined });
-      const png = await svgToPng(svg, w, h);
-      download(png, `행운부적_${card.category}_${ratio.replace(":", "x")}.png`);
-      track("share_click", { channel: "png", ratio });
+      const svg = renderBujeokSvg(card, { wish, emoji });
+      const png = await svgToPng(svg, CARD_W, CARD_H);
+      download(png, `행운부적_${card.category}.png`);
+      track("share_click", { channel: "png" });
     } catch {
-      /* 사용자에게 조용히 실패 — 링크 복사 대안 존재 */
+      /* 조용히 실패 — 링크 복사 대안 존재 */
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2.5">
-      {(Object.keys(DIMS) as CardRatio[]).map((ratio) => (
-        <button
-          key={ratio}
-          type="button"
-          onClick={() => save(ratio)}
-          disabled={busy !== null}
-          className="rounded-xl border border-hanji-deep bg-white/60 py-3 text-sm font-semibold text-meok transition hover:border-jusa/50 active:scale-[0.99] disabled:opacity-50"
-        >
-          {busy === ratio ? "저장 중…" : `📥 ${DIMS[ratio].label}`}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={save}
+      disabled={busy}
+      className="w-full rounded-xl border border-hanji-deep bg-white/60 py-3.5 text-base font-semibold text-meok transition hover:border-jusa/50 active:scale-[0.99] disabled:opacity-50"
+    >
+      {busy ? "저장 중…" : "📥 이미지 저장"}
+    </button>
   );
 }

@@ -1,205 +1,189 @@
-// 부적 SVG 레이어 에셋 — 배경 5 × 인장 5 × 문양 8 × 장식 4 = 800 조합.
+// 부적 SVG 레이어 에셋 — 세로형(3:4) · 트렌디/귀여운 무드.
 //
-// 모든 레이어는 순수 문자열(SVG 조각)을 반환한다. DOM·외부 에셋 의존이 없어
-// 서버(OG 이미지)·클라이언트 양쪽에서 동일하게 동작하고, 같은 입력이면 항상
-// 같은 그림이 나온다. 색은 오행 색(colorHex)에서 파생한다.
+// 컨셉(예리 디자인 방향): 전통 부적 DNA(주사 레드 인장 + 한자)는 유지하되,
+// 배경은 오행별 파스텔, 장식은 반짝이·별·하트 도트 + 스티커 다이컷 프레임으로
+// 10~20대가 저장·공유하고 싶은 "귀여운 부적 스티커" 느낌을 낸다. URL·링크 없음.
+//
+// 조합: 배경 5(오행 파스텔) × 인장 5(카테고리) × 문양 8(시드) × 프레임 4(시드) = 800.
+// 모든 레이어는 순수 문자열이라 서버·클라이언트에서 동일하게 그려진다.
 
 /** 주사(朱砂) 레드 — 인장 고정색 */
-export const JUSA = "#c8352b";
-const JUSA_DEEP = "#9e241d";
-/** 한지/먹 톤 */
-const HANJI = "#f5efe1";
-const HANJI_DEEP = "#e7dcc2";
-const MEOK = "#26221c";
+export const JUSA = "#e0564a";
+const JUSA_DEEP = "#c33a2f";
+const CREAM = "#fdfaf2";
+const MEOK = "#3a332a";
 
-/** "#rrggbb" → {r,g,b} */
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const m = /^#?([0-9a-fA-F]{6})$/.exec(hex.trim());
   const n = m ? parseInt(m[1], 16) : 0;
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
-
-/** 오행색을 검정 쪽으로 amt(0~1) 섞은 hex */
-function shade(hex: string, amt: number): string {
+function to2(c: number): string {
+  return Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0");
+}
+/** 흰색 쪽으로 amt(0~1) 섞기 (파스텔화) */
+function tint(hex: string, amt: number): string {
   const { r, g, b } = hexToRgb(hex);
-  const f = (c: number) => Math.round(c * (1 - amt));
-  const to2 = (c: number) => c.toString(16).padStart(2, "0");
+  const f = (c: number) => c + (255 - c) * amt;
   return `#${to2(f(r))}${to2(f(g))}${to2(f(b))}`;
 }
-
-/** 오행색 rgba 문자열 */
+/** 검정 쪽으로 amt 섞기 */
+function shade(hex: string, amt: number): string {
+  const { r, g, b } = hexToRgb(hex);
+  const f = (c: number) => c * (1 - amt);
+  return `#${to2(f(r))}${to2(f(g))}${to2(f(b))}`;
+}
 export function rgba(hex: string, a: number): string {
   const { r, g, b } = hexToRgb(hex);
   return `rgba(${r},${g},${b},${a})`;
 }
 
-// ── 배경 (보완 오행 → 색) ─────────────────────────────────
-// 한지 그레인(turbulence) + 오행색 라디얼 그라디언트. defs 와 rect 를 함께 반환.
-
+// ── 배경 (보완 오행 → 파스텔) ─────────────────────────────
 export function backgroundLayer(id: string, colorHex: string, w: number, h: number): string {
-  const tint = rgba(colorHex, 0.22);
-  const edge = rgba(shade(colorHex, 0.35), 0.4);
+  const top = tint(colorHex, 0.82);
+  const bottom = tint(colorHex, 0.6);
+  const r = 40;
   return `
   <defs>
-    <radialGradient id="${id}-bg" cx="50%" cy="42%" r="75%">
-      <stop offset="0%" stop-color="${HANJI}"/>
-      <stop offset="62%" stop-color="${HANJI}"/>
-      <stop offset="100%" stop-color="${HANJI_DEEP}"/>
-    </radialGradient>
+    <linearGradient id="${id}-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${CREAM}"/>
+      <stop offset="30%" stop-color="${top}"/>
+      <stop offset="100%" stop-color="${bottom}"/>
+    </linearGradient>
     <filter id="${id}-grain">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" stitchTiles="stitch" result="n"/>
       <feColorMatrix in="n" type="saturate" values="0"/>
-      <feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer>
+      <feComponentTransfer><feFuncA type="linear" slope="0.028"/></feComponentTransfer>
       <feComposite operator="over" in2="SourceGraphic"/>
     </filter>
   </defs>
-  <rect width="${w}" height="${h}" fill="url(#${id}-bg)"/>
-  <rect width="${w}" height="${h}" fill="${tint}"/>
-  <rect width="${w}" height="${h}" fill="${HANJI}" filter="url(#${id}-grain)" opacity="0.5"/>
-  <rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="${edge}" stroke-width="2"/>`;
+  <rect x="0" y="0" width="${w}" height="${h}" rx="${r}" fill="url(#${id}-bg)"/>
+  <rect x="0" y="0" width="${w}" height="${h}" rx="${r}" fill="${CREAM}" filter="url(#${id}-grain)" opacity="0.6"/>`;
 }
 
-// ── 인장 (카테고리 → 중앙 한자) ───────────────────────────
-// 주사 레드 도장: 둥근 사각 + 한자 1자. 살짝 회전으로 손도장 느낌.
-
-export function sealLayer(char: string, cx: number, cy: number, size = 118): string {
+// ── 인장 (카테고리 → 한자, 라운드 도장) ───────────────────
+export function sealLayer(char: string, cx: number, cy: number, size = 176): string {
   const half = size / 2;
+  const rx = Math.round(size * 0.3);
   return `
-  <g transform="translate(${cx} ${cy}) rotate(-3)">
-    <rect x="${-half}" y="${-half}" width="${size}" height="${size}" rx="14"
-          fill="${JUSA}" stroke="${JUSA_DEEP}" stroke-width="4"/>
-    <rect x="${-half + 9}" y="${-half + 9}" width="${size - 18}" height="${size - 18}" rx="8"
-          fill="none" stroke="${rgba("#ffffff", 0.75)}" stroke-width="2"/>
-    <text x="0" y="0" text-anchor="middle" dominant-baseline="central"
-          font-family="'Nanum Myeongjo','Noto Serif KR',serif" font-weight="700"
-          font-size="${Math.round(size * 0.6)}" fill="${HANJI}">${char}</text>
+  <g transform="translate(${cx} ${cy}) rotate(-4)">
+    <rect x="${-half}" y="${-half}" width="${size}" height="${size}" rx="${rx}"
+          fill="${JUSA}" stroke="${JUSA_DEEP}" stroke-width="5"/>
+    <rect x="${-half + 12}" y="${-half + 12}" width="${size - 24}" height="${size - 24}" rx="${rx - 8}"
+          fill="none" stroke="${rgba("#ffffff", 0.8)}" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+    <text x="0" y="4" text-anchor="middle" dominant-baseline="central"
+          font-family="'Nanum Myeongjo','Noto Serif KR',serif" font-weight="800"
+          font-size="${Math.round(size * 0.56)}" fill="${CREAM}">${char}</text>
   </g>`;
 }
 
-// ── 문양 8종 (시드) ───────────────────────────────────────
-// 오행색으로 그리는 장식 모티프. 카드 중앙(인장)을 비우도록 가장자리·상하에 배치.
+/** 카테고리 이모지 스티커 배지 (인장 옆 귀여움 포인트) */
+export function emojiBadge(emoji: string, cx: number, cy: number, r = 34): string {
+  return `
+  <g>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="${CREAM}" stroke="${rgba(MEOK, 0.12)}" stroke-width="2"/>
+    <text x="${cx}" y="${cy + 1}" text-anchor="middle" dominant-baseline="central" font-size="${Math.round(r * 1.05)}">${emoji}</text>
+  </g>`;
+}
+
+// ── 귀여운 모티프 프리미티브 ──────────────────────────────
+function dot(x: number, y: number, r: number, fill: string) {
+  return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
+}
+function sparkle(x: number, y: number, s: number, fill: string) {
+  // 4각 반짝이
+  return `<path d="M${x} ${y - s} C ${x + s * 0.18} ${y - s * 0.18}, ${x + s * 0.18} ${y - s * 0.18}, ${x + s} ${y} C ${x + s * 0.18} ${y + s * 0.18}, ${x + s * 0.18} ${y + s * 0.18}, ${x} ${y + s} C ${x - s * 0.18} ${y + s * 0.18}, ${x - s * 0.18} ${y + s * 0.18}, ${x - s} ${y} C ${x - s * 0.18} ${y - s * 0.18}, ${x - s * 0.18} ${y - s * 0.18}, ${x} ${y - s} Z" fill="${fill}"/>`;
+}
+function star5(x: number, y: number, s: number, fill: string) {
+  let pts = "";
+  for (let i = 0; i < 5; i++) {
+    const ao = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+    const ai = ao + Math.PI / 5;
+    pts += `${(x + Math.cos(ao) * s).toFixed(1)},${(y + Math.sin(ao) * s).toFixed(1)} `;
+    pts += `${(x + Math.cos(ai) * s * 0.45).toFixed(1)},${(y + Math.sin(ai) * s * 0.45).toFixed(1)} `;
+  }
+  return `<polygon points="${pts.trim()}" fill="${fill}"/>`;
+}
+function heart(x: number, y: number, s: number, fill: string) {
+  return `<path d="M${x} ${y + s * 0.75} C ${x - s * 1.3} ${y - s * 0.35}, ${x - s * 0.35} ${y - s} , ${x} ${y - s * 0.28} C ${x + s * 0.35} ${y - s}, ${x + s * 1.3} ${y - s * 0.35}, ${x} ${y + s * 0.75} Z" fill="${fill}"/>`;
+}
+function flower(x: number, y: number, s: number, fill: string) {
+  let g = "";
+  for (let i = 0; i < 5; i++) {
+    const a = (i * 2 * Math.PI) / 5;
+    g += `<circle cx="${(x + Math.cos(a) * s).toFixed(1)}" cy="${(y + Math.sin(a) * s).toFixed(1)}" r="${(s * 0.62).toFixed(1)}" fill="${fill}"/>`;
+  }
+  return g + dot(x, y, s * 0.55, CREAM);
+}
+function crescent(x: number, y: number, s: number, fill: string) {
+  return `<path d="M ${x + s * 0.35} ${y - s} A ${s} ${s} 0 1 0 ${x + s * 0.35} ${y + s} A ${s * 0.72} ${s * 0.72} 0 1 1 ${x + s * 0.35} ${y - s} Z" fill="${fill}"/>`;
+}
+
+// 중앙 인장(대략 x120~360, y210~430)을 피한 여백 앵커
+const ANCHORS: [number, number][] = [
+  [78, 250], [402, 250], [66, 360], [414, 360],
+  [92, 470], [388, 470], [150, 520], [330, 520],
+  [240, 118], [130, 150], [350, 150], [240, 560],
+];
 
 type MotifFn = (color: string, w: number, h: number) => string;
 
-const dot = (x: number, y: number, r: number, fill: string) =>
-  `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
+// 각 문양 세트: 앵커에 테마 모티프를 흩뿌린다. 카테고리 무드와 상관없이 시드로 선택.
+function scatter(draw: (x: number, y: number, i: number) => string): string {
+  return ANCHORS.map(([x, y], i) => draw(x, y, i)).join("");
+}
 
 export const PATTERNS: MotifFn[] = [
-  // 0 — 모서리 동심원
-  (c, w, h) => {
-    const col = rgba(c, 0.5);
-    const ring = (x: number, y: number) =>
-      `<circle cx="${x}" cy="${y}" r="26" fill="none" stroke="${col}" stroke-width="2"/>` +
-      `<circle cx="${x}" cy="${y}" r="16" fill="none" stroke="${col}" stroke-width="2"/>` +
-      dot(x, y, 5, col);
-    return ring(46, 46) + ring(w - 46, 46) + ring(46, h - 46) + ring(w - 46, h - 46);
-  },
-  // 1 — 상하 물결
-  (c, w, h) => {
-    const col = rgba(c, 0.45);
-    const wave = (y: number) => {
-      let d = `M0 ${y}`;
-      for (let x = 0; x <= w; x += 40) d += ` q 20 -12 40 0`;
-      return `<path d="${d}" fill="none" stroke="${col}" stroke-width="3"/>`;
-    };
-    return wave(64) + wave(80) + wave(h - 80) + wave(h - 64);
-  },
-  // 2 — 점 격자
-  (c, w, h) => {
-    const col = rgba(c, 0.4);
-    let s = "";
-    for (let x = 40; x < w; x += 44)
-      for (let y = 40; y < h; y += 44)
-        if (Math.abs(x - w / 2) > 90 || Math.abs(y - h / 2) > 120) s += dot(x, y, 3, col);
-    return s;
-  },
-  // 3 — 능형(마름모) 띠
-  (c, w, h) => {
-    const col = rgba(c, 0.5);
-    const dia = (x: number, y: number, r: number) =>
-      `<path d="M${x} ${y - r} L${x + r} ${y} L${x} ${y + r} L${x - r} ${y} Z" fill="none" stroke="${col}" stroke-width="2"/>`;
-    let s = "";
-    for (let x = 40; x <= w - 40; x += 40) s += dia(x, 40, 12) + dia(x, h - 40, 12);
-    return s;
-  },
-  // 4 — 방사선 (상단)
-  (c, w, h) => {
-    const col = rgba(c, 0.4);
-    const cx = w / 2;
-    let s = "";
-    for (let i = -4; i <= 4; i++)
-      s += `<line x1="${cx}" y1="34" x2="${cx + i * 34}" y2="120" stroke="${col}" stroke-width="2"/>`;
-    return s;
-  },
-  // 5 — 구름 소용돌이
-  (c, w, h) => {
-    const col = rgba(c, 0.5);
-    const swirl = (x: number, y: number) =>
-      `<path d="M${x} ${y} a14 14 0 1 1 -13 6 a9 9 0 1 0 9 -4" fill="none" stroke="${col}" stroke-width="2.5"/>`;
-    return swirl(52, 96) + swirl(w - 52, 96) + swirl(52, h - 96) + swirl(w - 52, h - 96);
-  },
-  // 6 — 격자 창살
-  (c, w, h) => {
-    const col = rgba(c, 0.32);
-    let s = "";
-    for (let x = 56; x < w; x += 56) s += `<line x1="${x}" y1="30" x2="${x}" y2="${h - 30}" stroke="${col}" stroke-width="1.5"/>`;
-    for (let y = 56; y < h; y += 56) s += `<line x1="30" y1="${y}" x2="${w - 30}" y2="${y}" stroke="${col}" stroke-width="1.5"/>`;
-    return s;
-  },
-  // 7 — 인장 둘레 꽃잎
-  (c, w, h) => {
-    const col = rgba(c, 0.55);
-    const cx = w / 2, cy = h / 2;
-    let s = "";
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2;
-      const x = cx + Math.cos(a) * 96;
-      const y = cy + Math.sin(a) * 96;
-      s += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="10" ry="5" transform="rotate(${((a * 180) / Math.PI).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="${col}"/>`;
-    }
-    return s;
-  },
+  // 0 — 반짝이
+  (c) => scatter((x, y, i) => sparkle(x, y, i % 2 ? 11 : 7, rgba(shade(c, 0.1), 0.75))),
+  // 1 — 별
+  (c) => scatter((x, y, i) => star5(x, y, i % 2 ? 11 : 8, rgba(shade(c, 0.12), 0.7))),
+  // 2 — 하트
+  (c) => scatter((x, y, i) => heart(x, y, i % 2 ? 11 : 8, rgba(JUSA, 0.5))),
+  // 3 — 도트 무리
+  (c) => scatter((x, y, i) => dot(x, y, i % 3 ? 4 : 6, rgba(shade(c, 0.1), 0.6)) + dot(x + 12, y + 8, 3, rgba(shade(c, 0.1), 0.4))),
+  // 4 — 꽃
+  (c) => scatter((x, y, i) => (i % 2 ? flower(x, y, 9, rgba(c, 0.55)) : dot(x, y, 4, rgba(shade(c, 0.15), 0.6)))),
+  // 5 — 초승달 + 별
+  (c) => scatter((x, y, i) => (i % 2 ? crescent(x, y, 10, rgba(shade(c, 0.12), 0.6)) : star5(x, y, 6, rgba(shade(c, 0.12), 0.6)))),
+  // 6 — 반짝이 + 하트 믹스
+  (c) => scatter((x, y, i) => (i % 2 ? sparkle(x, y, 10, rgba(shade(c, 0.1), 0.7)) : heart(x, y, 7, rgba(JUSA, 0.45)))),
+  // 7 — 작은 별똥별(별+꼬리)
+  (c) => scatter((x, y, i) => star5(x, y, i % 2 ? 10 : 7, rgba(shade(c, 0.12), 0.7)) + `<line x1="${x + 6}" y1="${y + 6}" x2="${x + 18}" y2="${y + 16}" stroke="${rgba(shade(c, 0.12), 0.35)}" stroke-width="2" stroke-linecap="round"/>`),
 ];
 
-// ── 장식 4종 (시드) — 테두리 프레임 ──────────────────────
-
+// ── 스티커 다이컷 프레임 4종 (시드) ──────────────────────
 type FrameFn = (color: string, w: number, h: number) => string;
 
 export const DECORATIONS: FrameFn[] = [
-  // 0 — 이중 실선
+  // 0 — 둥근 이중선
   (c, w, h) => {
-    const col = rgba(shade(c, 0.2), 0.7);
-    return (
-      `<rect x="18" y="18" width="${w - 36}" height="${h - 36}" fill="none" stroke="${col}" stroke-width="3"/>` +
-      `<rect x="26" y="26" width="${w - 52}" height="${h - 52}" fill="none" stroke="${col}" stroke-width="1.5"/>`
-    );
+    const col = rgba(shade(c, 0.22), 0.55);
+    return `<rect x="20" y="20" width="${w - 40}" height="${h - 40}" rx="30" fill="none" stroke="${col}" stroke-width="2.5"/>` +
+      `<rect x="28" y="28" width="${w - 56}" height="${h - 56}" rx="24" fill="none" stroke="${col}" stroke-width="1.5"/>`;
   },
-  // 1 — 모서리 브래킷
+  // 1 — 파선 스티커
   (c, w, h) => {
-    const col = rgba(shade(c, 0.25), 0.8);
-    const L = 40, m = 20;
-    const corner = (x: number, y: number, sx: number, sy: number) =>
-      `<path d="M${x} ${y + sy * L} L${x} ${y} L${x + sx * L} ${y}" fill="none" stroke="${col}" stroke-width="3.5"/>`;
-    return (
-      corner(m, m, 1, 1) +
-      corner(w - m, m, -1, 1) +
-      corner(m, h - m, 1, -1) +
-      corner(w - m, h - m, -1, -1)
-    );
+    const col = rgba(shade(c, 0.22), 0.6);
+    return `<rect x="22" y="22" width="${w - 44}" height="${h - 44}" rx="28" fill="none" stroke="${col}" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/>`;
   },
-  // 2 — 파선 프레임
+  // 2 — 스캘럽(물결) 테두리
   (c, w, h) => {
-    const col = rgba(shade(c, 0.2), 0.7);
-    return `<rect x="20" y="20" width="${w - 40}" height="${h - 40}" fill="none" stroke="${col}" stroke-width="2.5" stroke-dasharray="10 7"/>`;
+    const col = rgba(shade(c, 0.2), 0.5);
+    const step = 26, r = 9;
+    let d = "";
+    for (let x = 34; x <= w - 34; x += step) d += `<circle cx="${x}" cy="26" r="${r}" fill="none" stroke="${col}" stroke-width="2"/><circle cx="${x}" cy="${h - 26}" r="${r}" fill="none" stroke="${col}" stroke-width="2"/>`;
+    for (let y = 60; y <= h - 60; y += step) d += `<circle cx="26" cy="${y}" r="${r}" fill="none" stroke="${col}" stroke-width="2"/><circle cx="${w - 26}" cy="${y}" r="${r}" fill="none" stroke="${col}" stroke-width="2"/>`;
+    return d;
   },
   // 3 — 구슬 테두리
   (c, w, h) => {
-    const col = rgba(shade(c, 0.2), 0.75);
-    let s = `<rect x="22" y="22" width="${w - 44}" height="${h - 44}" fill="none" stroke="${col}" stroke-width="1.5"/>`;
-    for (let x = 22; x <= w - 22; x += 26) s += dot(x, 22, 2.5, col) + dot(x, h - 22, 2.5, col);
-    for (let y = 22; y <= h - 22; y += 26) s += dot(22, y, 2.5, col) + dot(w - 22, y, 2.5, col);
+    const col = rgba(shade(c, 0.2), 0.6);
+    let s = `<rect x="24" y="24" width="${w - 48}" height="${h - 48}" rx="26" fill="none" stroke="${col}" stroke-width="1.5"/>`;
+    for (let x = 24; x <= w - 24; x += 24) s += dot(x, 24, 3, col) + dot(x, h - 24, 3, col);
+    for (let y = 48; y <= h - 48; y += 24) s += dot(24, y, 3, col) + dot(w - 24, y, 3, col);
     return s;
   },
 ];
 
-export { MEOK, HANJI };
+export { CREAM, MEOK };
