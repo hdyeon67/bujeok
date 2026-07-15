@@ -30,11 +30,20 @@ export const SEASON_HOOKS: SeasonHook[] = [
   },
 ];
 
-/** "YYYY-MM-DD" → UTC 자정 ms (실패 시 NaN) */
+/** "YYYY-MM-DD" → UTC 자정 ms (실패·범위초과 시 NaN) */
 function utc(dateISO: string): number {
   const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(dateISO.trim());
   if (!m) return NaN;
-  return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const ms = Date.UTC(y, mo - 1, d);
+  // 라운드트립 검증 — 13월·40일 같은 오버플로가 조용히 다른 날짜로 넘어가는 것 방지
+  const dt = new Date(ms);
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) {
+    return NaN;
+  }
+  return ms;
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -51,8 +60,12 @@ export function dDay(todayISO: string, targetISO: string): number {
  * 오늘 기준 활성 시즌 훅 (없으면 null → 범용 모드).
  * 아직 지나지 않은(D-day >= 0) 훅 중 가장 임박한 것을 고른다.
  */
-export function activeSeasonHook(todayISO: string): SeasonHook | null {
-  const alive = SEASON_HOOKS.map((h) => ({ h, d: dDay(todayISO, h.targetISO) }))
+export function activeSeasonHook(
+  todayISO: string,
+  hooks: SeasonHook[] = SEASON_HOOKS,
+): SeasonHook | null {
+  const alive = hooks
+    .map((h) => ({ h, d: dDay(todayISO, h.targetISO) }))
     .filter(({ d }) => Number.isFinite(d) && d >= 0)
     .sort((x, y) => x.d - y.d);
   return alive.length > 0 ? alive[0].h : null;

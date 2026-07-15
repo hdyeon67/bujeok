@@ -1,32 +1,97 @@
+// 동적 OG 이미지 — 링크/카톡 미리보기에 부적 소원 문구 노출 (바이럴 유도).
+//   next/og(satori) 기반, 외부 키·CDN 불필요. ChemiCheck 하드닝 패턴 적용:
+//   - 한글 폰트는 워커 ASSETS 의 KS X 1001 서브셋(337KB) — 모듈 스코프 캐시로 1회만 로드
+//   - 솔리드 배경/카드(그라데이션·섀도 없음), 600×315 캔버스로 메모리 최소화
+//   - Cache API 로 c(소원)별 1회만 렌더 후 엣지 캐시
+//   ※ 서브셋 폰트엔 이모지 글리프가 없어 이모지는 넣지 않는다(두부 방지).
+
 import { ImageResponse } from "next/og";
 import { isWishId, getWish } from "@/lib/bujeok/catalog";
 
 export const runtime = "nodejs";
 
-// 링크 프리뷰 OG(1200×630). 부적 소원 문구 + 이모지 + 카테고리 색. Pretendard fetch.
-const FONT_BOLD =
-  "https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/public/static/Pretendard-Bold.otf";
+const FONT_PATH = "/fonts/pretendard-kr-subset.ttf";
+const W = 600;
+const H = 315;
+const CREAM = "#fff6e9";
+const INK = "#2b2724";
 
-async function font(url: string): Promise<ArrayBuffer | null> {
+// 폰트를 아이솔레이트당 한 번만 받아 재사용(매 렌더 재fetch/파싱 방지)
+let cachedFont: ArrayBuffer | null = null;
+async function loadFont(origin: string): Promise<ArrayBuffer | null> {
+  if (cachedFont) return cachedFont;
   try {
-    const r = await fetch(url, { cache: "force-cache" });
-    return r.ok ? await r.arrayBuffer() : null;
+    const res = await fetch(new URL(FONT_PATH, origin), { cache: "force-cache" });
+    if (!res.ok) return null;
+    cachedFont = await res.arrayBuffer();
+    return cachedFont;
   } catch {
     return null;
   }
 }
 
-export async function GET(req: Request) {
+// OG 이미지는 c별로 결정적 → 엣지에서 오래 캐시.
+const OG_HEADERS = {
+  "Cache-Control": "public, immutable, no-transform, max-age=31536000, s-maxage=31536000",
+};
+
+// Cloudflare 는 Worker 가 "생성한" 응답을 헤더만으로 자동 캐시하지 않는다.
+// Cache API 로 명시적으로 캐시해, 같은 c 요청은 한 번만 렌더한다.
+export async function GET(req: Request): Promise<Response> {
+  const cache = (globalThis as { caches?: { default?: Cache } }).caches?.default;
+  const cacheKey = new Request(new URL(req.url).toString(), { method: "GET" });
+
+  if (cache) {
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit;
+  }
+
+  const res = await render(req);
+
+  if (cache && res.ok) {
+    try {
+      await cache.put(cacheKey, res.clone());
+    } catch {
+      /* 캐시 저장 실패는 무시 */
+    }
+  }
+  return res;
+}
+
+async function render(req: Request): Promise<Response> {
   const { searchParams } = new URL(req.url);
   const c = searchParams.get("c");
-  const bold = await font(FONT_BOLD);
-  const fonts = bold
-    ? [{ name: "Pretendard", data: bold, weight: 700 as const, style: "normal" as const }]
+  const font = await loadFont(req.url);
+  const fonts = font
+    ? [{ name: "Pretendard", data: font, weight: 700 as const, style: "normal" as const }]
     : undefined;
 
-  const valid = c && isWishId(c);
-  const e = valid ? getWish(c) : null;
-  const bg = e ? e.bg : "#fff6e9";
+  const e = c && isWishId(c) ? getWish(c) : null;
+
+  // 잘못된 소원: 브랜드 카드로 폴백
+  if (!e) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "Pretendard",
+            fontWeight: 700,
+            fontSize: 44,
+            color: INK,
+            background: CREAM,
+          }}
+        >
+          행운부적
+        </div>
+      ),
+      { width: W, height: H, fonts, headers: OG_HEADERS },
+    );
+  }
 
   return new ImageResponse(
     (
@@ -38,22 +103,47 @@ export async function GET(req: Request) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: bg,
           fontFamily: "Pretendard",
-          color: "#2b2724",
-          padding: 60,
-          textAlign: "center",
+          background: e.bg,
+          padding: 26,
         }}
       >
-        <div style={{ display: "flex", fontSize: 120 }}>{e ? e.emoji : "🧧"}</div>
-        <div style={{ display: "flex", fontSize: 88, fontWeight: 700, marginTop: 12 }}>
-          {e ? e.phrase : "행운부적"}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 520,
+            padding: "34px 28px",
+            borderRadius: 28,
+            background: "#ffffff",
+            border: `4px solid ${INK}`,
+          }}
+        >
+          <div style={{ display: "flex", fontSize: 20, fontWeight: 700, color: e.accent }}>
+            {e.label} 부적
+          </div>
+          <div
+            style={{
+              display: "flex",
+              textAlign: "center",
+              marginTop: 10,
+              fontSize: 52,
+              fontWeight: 700,
+              lineHeight: 1.15,
+              color: INK,
+            }}
+          >
+            {e.phrase}
+          </div>
         </div>
-        <div style={{ display: "flex", fontSize: 34, marginTop: 30, color: "#5a534c" }}>
-          🐯 행운부적 · 소원 골라 부적 뽑기
+
+        <div style={{ display: "flex", marginTop: 16, fontSize: 18, fontWeight: 700, color: INK }}>
+          행운부적 · 소원 골라 부적 뽑기
         </div>
       </div>
     ),
-    { width: 1200, height: 630, fonts },
+    { width: W, height: H, fonts, headers: OG_HEADERS },
   );
 }

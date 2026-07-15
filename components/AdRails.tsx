@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { AdFit } from "./AdFit";
 import {
   ADFIT_UNIT_PC_LEFT,
@@ -11,8 +12,11 @@ import {
  * PC 좌·우 세로 사이드 광고(160×600). xl(1280px) 이상에서만 노출.
  * 그 미만(모바일·태블릿)에선 숨기고 하단 가로 배너(320×100)를 쓴다.
  * 단위 ID가 없으면 렌더하지 않는다.
+ * 랜딩("/")에는 광고를 두지 않는다(기획: 랜딩 광고 없음).
  */
 export function AdRails() {
+  const pathname = usePathname();
+  if (pathname === "/") return null;
   if (!ADFIT_UNIT_PC_LEFT && !ADFIT_UNIT_PC_RIGHT) return null;
   return (
     <>
