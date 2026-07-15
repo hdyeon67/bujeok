@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { CategoryId } from "@/lib/bujeok-engine";
-import { CATALOG, todaysBujeok } from "@/lib/bujeok/catalog";
-import { categoryTheme } from "@/lib/config/theme";
+import { WISHES, todaysWish, type WishId } from "@/lib/bujeok/catalog";
 import { todayKST } from "@/lib/util/date";
 import { track, referrerType } from "@/lib/analytics";
 import { SeasonCountdown } from "@/components/SeasonCountdown";
@@ -12,16 +10,16 @@ import { SeasonCountdown } from "@/components/SeasonCountdown";
 // 제로 입력 생성기 — 소원만 고르면 부적으로. + 오늘의 부적(날짜 시드).
 export function WishGrid() {
   const router = useRouter();
-  const [today, setToday] = useState<CategoryId | null>(null);
+  const [today, setToday] = useState<WishId | null>(null);
 
   useEffect(() => {
     track("landing_view", { referrer_type: referrerType() });
-    setToday(todaysBujeok(todayKST()));
+    setToday(todaysWish(todayKST()));
   }, []);
 
-  function pick(category: CategoryId, from: string) {
-    track("bujeok_generate", { category, from });
-    router.push(`/result?c=${category}`);
+  function pick(id: WishId, from: string) {
+    track("bujeok_generate", { category: id, from });
+    router.push(`/result?c=${id}`);
   }
 
   return (
@@ -46,23 +44,20 @@ export function WishGrid() {
       </p>
 
       <div className="grid grid-cols-2 gap-2.5">
-        {CATALOG.map((e) => {
-          const t = categoryTheme(e.category);
-          return (
-            <button
-              key={e.category}
-              type="button"
-              onClick={() => pick(e.category, "grid")}
-              className="flex flex-col items-center gap-1 rounded-2xl border-[2.5px] border-ink py-4 text-base font-extrabold text-ink shadow-popsm transition hover:-translate-y-0.5 active:translate-y-0"
-              style={{ backgroundColor: t.bg }}
-            >
-              <span className="text-3xl" aria-hidden>
-                {e.emoji}
-              </span>
-              {e.label}
-            </button>
-          );
-        })}
+        {WISHES.map((e) => (
+          <button
+            key={e.id}
+            type="button"
+            onClick={() => pick(e.id, "grid")}
+            className="flex flex-col items-center gap-1 rounded-2xl border-[2.5px] border-ink py-4 text-base font-extrabold text-ink shadow-popsm transition hover:-translate-y-0.5 active:translate-y-0"
+            style={{ backgroundColor: e.bg }}
+          >
+            <span className="text-3xl" aria-hidden>
+              {e.emoji}
+            </span>
+            {e.label}
+          </button>
+        ))}
       </div>
 
       <p className="mt-4 text-center text-xs font-medium text-ink-faint">

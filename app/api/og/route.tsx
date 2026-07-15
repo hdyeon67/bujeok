@@ -1,7 +1,5 @@
 import { ImageResponse } from "next/og";
-import { isCategoryId } from "@/lib/bujeok-engine";
-import { getEntry } from "@/lib/bujeok/catalog";
-import { categoryTheme } from "@/lib/config/theme";
+import { isWishId, getWish } from "@/lib/bujeok/catalog";
 
 export const runtime = "nodejs";
 
@@ -26,9 +24,9 @@ export async function GET(req: Request) {
     ? [{ name: "Pretendard", data: bold, weight: 700 as const, style: "normal" as const }]
     : undefined;
 
-  const valid = c && isCategoryId(c);
-  const e = valid ? getEntry(c) : null;
-  const bg = valid ? categoryTheme(c).bg : "#fff6e9";
+  const valid = c && isWishId(c);
+  const e = valid ? getWish(c) : null;
+  const bg = e ? e.bg : "#fff6e9";
 
   return new ImageResponse(
     (

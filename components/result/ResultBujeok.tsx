@@ -2,24 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { CategoryId } from "@/lib/bujeok-engine";
-import { bujeokImg, type BujeokStyle } from "@/lib/bujeok/catalog";
-import { categoryTheme } from "@/lib/config/theme";
+import { wishImg, type BujeokStyle } from "@/lib/bujeok/catalog";
 import { track } from "@/lib/analytics";
 import { KakaoShareButton } from "./KakaoShareButton";
 
 // 부적 카드(이미지) + 스타일 토글(🐯 캐릭터 / ✍️ 글씨) + 저장/복사/카카오/친구 CTA.
 export function ResultBujeok({
-  category,
+  wishId,
   wish,
   phrase,
+  bg,
+  accent,
   initialStyle = "character",
   title,
   description,
 }: {
-  category: CategoryId;
+  wishId: string;
   wish: string;
   phrase: string;
+  bg: string;
+  accent: string;
   initialStyle?: BujeokStyle;
   title: string;
   description: string;
@@ -29,12 +31,11 @@ export function ResultBujeok({
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-  const theme = categoryTheme(category);
-  const src = bujeokImg(category, style);
+  const src = wishImg(wishId, style);
 
   useEffect(() => {
-    track("result_view", { category });
-  }, [category]);
+    track("result_view", { category: wishId });
+  }, [wishId]);
 
   // 스타일 바꿀 때 실패 상태 초기화 + 하이드레이션 전 로드 실패 감지
   useEffect(() => {
@@ -94,7 +95,7 @@ export function ResultBujeok({
       <div
         key={style}
         className="animate-bujeok-rise mx-auto w-full max-w-[320px] overflow-hidden rounded-[28px] border-[3px] border-ink shadow-[6px_6px_0_0_rgba(43,39,36,0.15)]"
-        style={{ aspectRatio: "3 / 4", backgroundColor: theme.bg }}
+        style={{ aspectRatio: "3 / 4", backgroundColor: bg }}
       >
         {!failed ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -107,11 +108,11 @@ export function ResultBujeok({
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
-            <span className="font-cute text-3xl font-bold leading-tight" style={{ color: theme.accent }}>
+            <span className="font-cute text-3xl font-bold leading-tight" style={{ color: accent }}>
               {phrase}
             </span>
             <span className="text-xs text-ink/50">
-              ({style === "word" ? `${category}_word` : category}.png 준비 중)
+              ({style === "word" ? `${wishId}_word` : wishId}.png 준비 중)
             </span>
             <div className="text-2xl" aria-hidden>🍀 ⭐ 💖 ✨</div>
           </div>

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { isCategoryId } from "@/lib/bujeok-engine";
-import { getEntry } from "@/lib/bujeok/catalog";
-import { categoryTheme } from "@/lib/config/theme";
+import { isWishId, getWish } from "@/lib/bujeok/catalog";
 import { ResultBujeok } from "@/components/result/ResultBujeok";
 import { CrossPromo } from "@/components/CrossPromo";
 import { PremiumLock } from "@/components/PremiumLock";
@@ -17,8 +15,8 @@ export async function generateMetadata({
   searchParams: SearchParams;
 }): Promise<Metadata> {
   const { c } = await searchParams;
-  if (!c || !isCategoryId(c)) return { title: "행운부적" };
-  const e = getEntry(c);
+  if (!c || !isWishId(c)) return { title: "행운부적" };
+  const e = getWish(c);
   const title = `${e.label} 부적 — ${e.phrase}`;
   const description = `${e.phrase} 귀여운 행운부적을 뽑아보세요!`;
   const og = `/api/og?c=${c}`;
@@ -36,10 +34,9 @@ export default async function ResultPage({
   searchParams: SearchParams;
 }) {
   const { c, s } = await searchParams;
-  if (!c || !isCategoryId(c)) redirect("/");
+  if (!c || !isWishId(c)) redirect("/");
 
-  const e = getEntry(c);
-  const theme = categoryTheme(c);
+  const e = getWish(c);
   const initialStyle = s === "word" ? "word" : "character";
 
   return (
@@ -50,7 +47,7 @@ export default async function ResultPage({
         </Link>
         <span
           className="rounded-full border-[2px] border-ink px-3 py-1 text-xs font-extrabold"
-          style={{ backgroundColor: theme.bg }}
+          style={{ backgroundColor: e.bg }}
         >
           {e.emoji} {e.label}
         </span>
@@ -61,9 +58,11 @@ export default async function ResultPage({
       </p>
 
       <ResultBujeok
-        category={c}
+        wishId={e.id}
         wish={e.label}
         phrase={e.phrase}
+        bg={e.bg}
+        accent={e.accent}
         initialStyle={initialStyle}
         title={`${e.label} 부적 — ${e.phrase}`}
         description={`${e.phrase} 나도 뽑아보기!`}
