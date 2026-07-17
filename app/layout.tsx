@@ -22,7 +22,10 @@ export const metadata: Metadata = {
     siteName: "행운부적",
     title: "행운부적 · 소원 골라 부적 뽑기",
     description: "소원만 고르면 귀여운 행운부적이 뿅! 저장하고 친구랑 공유해요.",
-    images: ["/bujeok/exam.png"],
+    // 홈/기본 공유 OG: 정적 이미지(캐릭터 합성본).
+    // satori 의 Workers(WASM) 빌드는 이미지를 렌더하지 못해(폰트는 됨) 런타임 합성이 불가 →
+    // 로컬에서 렌더한 결과를 정적 에셋으로 고정한다. 결과 카드 OG(api/og?c=)는 그대로 유지.
+    images: ["/og-home.jpg"],
   },
 };
 

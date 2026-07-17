@@ -68,7 +68,9 @@ async function render(req: Request): Promise<Response> {
 
   const e = c && isWishId(c) ? getWish(c) : null;
 
-  // 잘못된 소원: 브랜드 카드로 폴백
+  // 잘못된 소원(c): 브랜드 텍스트 카드로 폴백.
+  //   ※ 홈/기본 공유 OG 는 여기서 만들지 않는다 — satori 의 Workers(WASM) 빌드는 이미지를
+  //     렌더하지 못해(폰트는 정상) 캐릭터 합성이 불가. 홈 OG 는 정적 /og-home.jpg 를 쓴다.
   if (!e) {
     return new ImageResponse(
       (
@@ -78,18 +80,25 @@ async function render(req: Request): Promise<Response> {
             height: "100%",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
             fontFamily: "Pretendard",
-            fontWeight: 700,
-            fontSize: 44,
-            color: INK,
             background: CREAM,
+            padding: "48px 72px",
           }}
         >
-          행운부적
+          <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <div style={{ display: "flex", fontSize: 32, fontWeight: 700, color: "#e0564a" }}>
+              소원 하나 고르면
+            </div>
+            <div style={{ display: "flex", fontSize: 128, fontWeight: 700, color: INK, marginTop: 10 }}>
+              행운부적
+            </div>
+            <div style={{ display: "flex", fontSize: 38, fontWeight: 700, color: "#7a6f63", marginTop: 20 }}>
+              귀여운 행운부적이 뿅 나오는 생성기
+            </div>
+          </div>
         </div>
       ),
-      { width: W, height: H, fonts, headers: OG_HEADERS },
+      { width: 1200, height: 630, fonts, headers: OG_HEADERS },
     );
   }
 
