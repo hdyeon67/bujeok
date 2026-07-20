@@ -22,3 +22,6 @@
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# .env.production 은 CI 가 쓰는 공개 값이라 커밋한다(.env.local 은 계속 무시).
+!.env.production
