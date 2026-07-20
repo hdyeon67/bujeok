@@ -76,9 +76,10 @@ export function ResultBujeok({
   }
 
   async function copyLink() {
+    // 계측은 클립보드 작업보다 먼저 — 실패해도 공유 의도는 기록돼야 한다.
+    track("share_click", { channel: "link" });
     try {
       await navigator.clipboard.writeText(window.location.href);
-      track("share_click", { channel: "link" });
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {

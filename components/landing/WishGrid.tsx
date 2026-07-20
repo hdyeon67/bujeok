@@ -18,6 +18,8 @@ export function WishGrid() {
   }, []);
 
   function pick(id: WishId, from: string) {
+    // 공통 퍼널 단계(앱 간 비교용) + 앱 고유 이벤트를 함께 발사한다.
+    track("input_submit", { category: id });
     track("bujeok_generate", { category: id, from });
     router.push(`/result?c=${id}`);
   }
