@@ -1,7 +1,9 @@
 import type { Config } from "tailwindcss";
+import { BRAND, CREAM, INK } from "./lib/config/brand";
 
 // 행운부적 디자인 토큰 — 밝고 귀여운 캐릭터 굿즈 톤(최고심/earpearp 결).
 // 크림 배경 + 잉크(검정 외곽) + 밝은 포인트. 카테고리 색은 lib/config/theme.ts.
+// ⚠️ 빨강 계단은 lib/config/brand.ts 가 단일 출처다 — 여기에 새 빨강을 직접 적지 말 것.
 const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
@@ -12,18 +14,21 @@ const config: Config = {
     extend: {
       colors: {
         cream: {
-          DEFAULT: "#fff6e9",
+          DEFAULT: CREAM,
           soft: "#fdeccf",
           deep: "#f6dcae",
         },
         ink: {
-          DEFAULT: "#2b2724",
+          DEFAULT: INK,
           soft: "#5a534c",
           faint: "#8a8178",
         },
+        // 빨강 계단(밝음→어두움). DEFAULT=light 라 기존 `bg-brand` 클래스는 그대로 동작한다.
         brand: {
-          DEFAULT: "#ff5b3a",
-          deep: "#e8431f",
+          DEFAULT: BRAND.light,
+          light: BRAND.light,
+          deep: BRAND.deep,
+          dark: BRAND.dark,
         },
         // shadcn 계열 토큰
         border: "hsl(var(--border))",

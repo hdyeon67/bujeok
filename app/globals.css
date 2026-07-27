@@ -2,16 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ⚠️ 아래 색 값은 lib/config/brand.ts 의 미러다(CSS 는 TS 를 import 할 수 없다).
+   값을 바꾸려면 brand.ts 를 먼저 고칠 것 — 어긋나면 brand.test.ts 가 깨진다. */
 :root {
   --cream: #fff6e9;
   --ink: #2b2724;
-  --brand: #ff5b3a; /* 밝은 토마토 포인트 */
+  --brand: #ff5b3a; /* = BRAND.light 밝은 토마토 포인트 */
+  --brand-deep: #e8431f; /* = BRAND.deep 호버·크림 위 작은 텍스트 */
+  --brand-dark: #a3231d; /* = BRAND.dark 아이덴티티 판(아이콘·PWA) */
 
   /* shadcn 계열 토큰 (HSL) — 밝은 크림/먹 팔레트 */
   --foreground: 24 14% 15%; /* 잉크 */
   --muted-foreground: 24 8% 45%;
   --border: 36 60% 82%; /* 크림 딥 */
-  --primary: 12 100% 61%; /* 브랜드 */
+  --primary: 10.1 100% 61.4%; /* = BRAND.light #ff5b3a (구 12 100% 61% = #ff6038 미세 드리프트 교정) */
 }
 
 html,

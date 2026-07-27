@@ -7,14 +7,13 @@
 
 import { ImageResponse } from "next/og";
 import { isWishId, getWish } from "@/lib/bujeok/catalog";
+import { BRAND, CREAM, INK } from "@/lib/config/brand";
 
 export const runtime = "nodejs";
 
 const FONT_PATH = "/fonts/pretendard-kr-subset.ttf";
 const W = 600;
 const H = 315;
-const CREAM = "#fff6e9";
-const INK = "#2b2724";
 
 // 폰트를 아이솔레이트당 한 번만 받아 재사용(매 렌더 재fetch/파싱 방지)
 let cachedFont: ArrayBuffer | null = null;
@@ -86,7 +85,8 @@ async function render(req: Request): Promise<Response> {
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-            <div style={{ display: "flex", fontSize: 32, fontWeight: 700, color: "#e0564a" }}>
+            {/* 크림 배경 위 작은 라벨 → 계단의 deep(3.73:1). light 는 2.88:1 로 미달. */}
+            <div style={{ display: "flex", fontSize: 32, fontWeight: 700, color: BRAND.deep }}>
               소원 하나 고르면
             </div>
             <div style={{ display: "flex", fontSize: 128, fontWeight: 700, color: INK, marginTop: 10 }}>
