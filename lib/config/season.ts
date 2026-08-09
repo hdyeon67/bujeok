@@ -30,8 +30,12 @@ export const SEASON_HOOKS: SeasonHook[] = [
   },
 ];
 
-/** "YYYY-MM-DD" → UTC 자정 ms (실패·범위초과 시 NaN) */
-function utc(dateISO: string): number {
+/**
+ * "YYYY-MM-DD" → UTC 자정 ms (실패·범위초과 시 NaN)
+ * 날짜 비교가 필요한 곳은 문자열 비교 대신 반드시 이 함수를 쓴다.
+ * (catalog.ts 의 기간 한정 부적 판정도 이 함수를 재사용 — 두 곳 동작이 갈리지 않게)
+ */
+export function utc(dateISO: string): number {
   const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(dateISO.trim());
   if (!m) return NaN;
   const y = Number(m[1]);

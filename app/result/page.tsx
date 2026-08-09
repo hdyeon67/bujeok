@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isWishId, getWish } from "@/lib/bujeok/catalog";
 import { ResultBujeok } from "@/components/result/ResultBujeok";
+import { LimitedBadge, LimitedEndedNote } from "@/components/result/LimitedInfo";
 import { CrossPromo } from "@/components/CrossPromo";
 import { PremiumLock } from "@/components/PremiumLock";
 import { AdBottomMobile } from "@/components/AdRails";
@@ -45,12 +46,15 @@ export default async function ResultPage({
         <Link href="/" className="font-cute text-2xl font-bold text-brand">
           🐯 행운부적
         </Link>
-        <span
-          className="rounded-full border-[2px] border-ink px-3 py-1 text-xs font-extrabold"
-          style={{ backgroundColor: e.bg }}
-        >
-          {e.emoji} {e.label}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span
+            className="rounded-full border-[2px] border-ink px-3 py-1 text-xs font-extrabold"
+            style={{ backgroundColor: e.bg }}
+          >
+            {e.emoji} {e.label}
+          </span>
+          <LimitedBadge wishId={e.id} />
+        </div>
       </header>
 
       <p className="mb-4 text-center text-[15px] font-extrabold text-ink">
@@ -72,6 +76,9 @@ export default async function ResultPage({
       <div className="sticker mt-6 p-5 text-center">
         <p className="text-[15px] font-bold leading-relaxed text-ink">🍀 {e.cheer}</p>
       </div>
+
+      {/* 기간이 지난 한정 부적 안내 — 리다이렉트하지 않는다(공유 링크·OG 보존) */}
+      <LimitedEndedNote wishId={e.id} />
 
       {/* 프리미엄 (잠금) */}
       <div className="mt-5">
