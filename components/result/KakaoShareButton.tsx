@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isWishId } from "@/lib/bujeok/catalog";
 import { KAKAO_ENABLED, KAKAO_JS_KEY } from "@/lib/config/flags";
 import { track } from "@/lib/analytics";
 
@@ -62,8 +63,10 @@ export function KakaoShareButton({
     if (!ready || !window.Kakao) return;
     track("share_click", { channel: "kakao" });
     const url = window.location.href;
-    const d = new URLSearchParams(window.location.search).get("d") ?? "";
-    const image = `${window.location.origin}/api/og?d=${encodeURIComponent(d)}`;
+    // 결과 URL 은 ?c=<소원>. 예전엔 ?d= 를 읽어 /api/og 로 넘겼는데, 이 페이지엔 d 가 없어
+    // 공유 이미지가 전부 폴백 카드로 나갔다. 이제 소원별 정적 OG 를 직접 가리킨다.
+    const c = new URLSearchParams(window.location.search).get("c");
+    const image = `${window.location.origin}${isWishId(c) ? `/og/${c}.jpg` : "/og-home.jpg"}`;
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {

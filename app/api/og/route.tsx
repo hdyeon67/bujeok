@@ -1,3 +1,5 @@
+// ※ 결과 OG 는 이제 public/og/*.jpg 정적 파일을 쓴다(scripts/build-og.mjs). 이 라우트는 구링크 호환용.
+//
 // 동적 OG 이미지 — 링크/카톡 미리보기에 부적 소원 문구 노출 (바이럴 유도).
 //   next/og(satori) 기반, 외부 키·CDN 불필요. ChemiCheck 하드닝 패턴 적용:
 //   - 한글 폰트는 워커 ASSETS 의 KS X 1001 서브셋(337KB) — 모듈 스코프 캐시로 1회만 로드

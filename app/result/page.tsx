@@ -20,7 +20,9 @@ export async function generateMetadata({
   const e = getWish(c);
   const title = `${e.label} 부적 — ${e.phrase}`;
   const description = `${e.phrase} 귀여운 행운부적을 뽑아보세요!`;
-  const og = `/api/og?c=${c}`;
+  // 부적 일러스트를 그대로 쓴 정적 OG(scripts/build-og.mjs 산출물).
+  // satori 는 Workers 에서 이미지를 합성하지 못해 /api/og 로는 부적을 넣을 수 없다.
+  const og = `/og/${c}.jpg`;
   return {
     title,
     description,
