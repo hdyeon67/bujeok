@@ -31,7 +31,7 @@ export interface WishEntry {
 }
 
 export const WISHES = [
-  { id: "suneung", label: "수능 대박", emoji: "✏️", phrase: "찍어도 다 맞는!", cheer: "공부한 건 다 나오고, 안 한 건 안 나온다. 11월 19일, 넌 이미 준비됐어!", bg: "#ffe0e0", accent: "#d43d3d",
+  { id: "suneung", label: "수능 대박", emoji: "✏️", phrase: "잘 보고 오자!", cheer: "공부한 건 다 나오고, 안 한 건 안 나온다. 11월 19일, 넌 이미 준비됐어!", bg: "#ffe0e0", accent: "#d43d3d",
     limited: { from: "2026-08-11", until: "2026-11-19", badge: "수능 시즌 한정", finalFrom: "2026-10-20", finalBadge: "11/19까지만" } },
   { id: "exam", label: "시험 합격", emoji: "📚", phrase: "무엇이든 붙어버려!", cheer: "공부한 만큼 시험장에서 다 쏟아내자. 넌 이미 붙었어!", bg: "#c7e8ae", accent: "#4a9d54" },
   { id: "interview", label: "면접 성공", emoji: "💼", phrase: "말문이 팡 터지는!", cheer: "준비한 첫 마디만 떠올려. 오늘 넌 말빨 최강!", bg: "#ffdb3d", accent: "#d99400" },

@@ -122,6 +122,7 @@ describe("todaysWish — 한정 부적을 절대 뽑지 않는다", () => {
 describe("결과 페이지 경로 보존", () => {
   it("기간과 무관하게 suneung 은 유효한 WishId (리다이렉트 대상 아님)", () => {
     expect(isWishId("suneung")).toBe(true);
-    expect(getWish("suneung").phrase).toBe("찍어도 다 맞는!");
+    // 이미지 레터링(suneung_word.png)과 같은 말이어야 한다 — 다르면 공유 문구가 이미지와 어긋난다
+    expect(getWish("suneung").phrase).toBe("잘 보고 오자!");
   });
 });

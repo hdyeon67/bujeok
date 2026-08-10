@@ -23,7 +23,7 @@
   selfup.png / selfup_word.png        — 자존감    ("나는야 최고!")
 
   [기간 한정]
-  suneung.png / suneung_word.png      — 수능 대박  ("찍어도 다 맞는!")
+  suneung.png / suneung_word.png      — 수능 대박  ("잘 보고 오자!")
                                          노출 기간: catalog.ts 의 limited 필드 참조
 
 - 파일이 없으면 결과 화면은 카테고리 색 플레이스홀더(문구+이모지)로 대체됩니다.
